@@ -14,17 +14,17 @@ class Tag(models.Model):
         return self.name
 
 class Post(models.Model):
-    title = models.CharField(max_length=70)
-    body = models.TextField()
-    excerpt = models.CharField(max_length=200, blank=True)
+    title = models.CharField('标题', max_length=70)
+    body = models.TextField('正文')
+    excerpt = models.CharField('摘要', max_length=200, blank=True)
 
-    created_time = models.DateTimeField()
-    modified_time = models.DateTimeField()
+    created_time = models.DateTimeField(verbose_name='创建日期')
+    modified_time = models.DateTimeField(verbose_name='修改日期')
 
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    tags = models.ManyToManyField(Tag, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='分类')
+    tags = models.ManyToManyField(Tag, blank=True, verbose_name='标签')
 
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='作者')
 
     def __str__(self):
         return self.title
