@@ -10,6 +10,7 @@ def index(request):
 
 def detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
+    post.increase_views()
     post.body = markdown.markdown(post.body, extensions={'markdown.extensions.extra','markdown.extensions.codehilite', 'markdown.extensions.toc'})
     comment_list = post.comment_set.all()
     form = CommentForm()
