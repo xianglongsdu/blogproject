@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 import markdown
 from .models import Post
+from comments.models import Comment
+from comments.forms import CommentForm
 
 def index(request):
     post_list = Post.objects.all().order_by('-created_time')
@@ -9,8 +11,10 @@ def index(request):
 def detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
     post.body = markdown.markdown(post.body, extensions=['markdown.extensions.extra', 'markdown.extensions.codehilite', 'markdown.extensions.toc'])
-    
-    return render(request, 'blog/detail.html', context={'post': post})
+    comment_list = post.comment_set.all()
+    form = CommentForm()
+
+    return render(request, 'blog/detail.html', context={'post': post, 'comment_list': comment_list, 'form': form})
 
 def archives(request, year, month):
     post_list = Post.objects.filter(created_time__year=year, created_time__month=month)
