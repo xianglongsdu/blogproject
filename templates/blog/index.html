@@ -8,12 +8,12 @@
                 <article class="post post-{{ post.pk }}">
                     <header class="entry-header">
                         <h1 class="entry-title">
-                            <a href="single.html">{{ post.title }}</a>
+                            <a href="{% url 'blog:detail' post.pk %}">{{ post.title }}</a>
                         </h1>
                         <div class="entry-meta">
-                            <span class="post-category"><a href="#">{{ post.category }}</a></span>
+                            <span class="post-category"><a href="{% url 'blog:category' post.category.pk %}">{{ post.category }}</a></span>
                             <span class="post-date"><a href="#"><time class="entry-date"
-                                                                      datetime="2012-11-09T23:15:57+00:00">2017年5月11日</time></a></span>
+                                                                      datetime="{{ post.time | date }}">{{ post.time | date }}</time></a></span>
                             <span class="post-author"><a href="#">{{ post.author }}</a></span>
                             <span class="comments-link"><a href="#">4 评论</a></span>
                             <span class="views-count"><a href="#">588 阅读</a></span>
@@ -22,7 +22,7 @@
                     <div class="entry-content clearfix">
                         <p>{{ post.excerpt }}</p>
                         <div class="read-more cl-effect-14">
-                            <a href="#" class="more-link">继续阅读 <span class="meta-nav">→</span></a>
+                            <a href="{% url 'blog:detail' post.pk %}" class="more-link">继续阅读 <span class="meta-nav">→</span></a>
                         </div>
                     </div>
                 </article>
@@ -56,44 +56,32 @@
                 <div class="widget widget-recent-posts">
                     <h3 class="widget-title">最新文章</h3>
                     <ul>
+                        {% for post in latest %}
                         <li>
-                            <a href="#">Django 博客开发入门教程：前言</a>
+                            <a href="{% url 'blog:detail' post.pk %}">{{ post.title }}</a>
                         </li>
-                        <li>
-                            <a href="#">Django 博客使用 Markdown 自动生成文章目录</a>
-                        </li>
-                        <li>
-                            <a href="#">部署 Django 博客</a>
-                        </li>
+                        {% endfor %}
                     </ul>
                 </div>
                 <div class="widget widget-archives">
                     <h3 class="widget-title">归档</h3>
                     <ul>
+                        {% for date in dates %}
                         <li>
-                            <a href="#">2017 年 5 月</a>
+                            <a href="{% url 'blog:archive' date.year date.month %}">{{ date.year }} 年 {{ date.month }} 月</a>
                         </li>
-                        <li>
-                            <a href="#">2017 年 4 月</a>
-                        </li>
-                        <li>
-                            <a href="#">2017 年 3 月</a>
-                        </li>
+                        {% endfor %}
                     </ul>
                 </div>
 
                 <div class="widget widget-category">
                     <h3 class="widget-title">分类</h3>
                     <ul>
+                        {% for category in categories %}
                         <li>
-                            <a href="#">Django 博客教程 <span class="post-count">(13)</span></a>
+                            <a href="{% url 'blog:category' category.pk %}">{{ category.name }} <span class="post-count">({{ category.post_set.count }})</span></a>
                         </li>
-                        <li>
-                            <a href="#">Python 教程 <span class="post-count">(11)</span></a>
-                        </li>
-                        <li>
-                            <a href="#">Django 用户认证 <span class="post-count">(8)</span></a>
-                        </li>
+                        {% endfor %}
                     </ul>
                 </div>
 
