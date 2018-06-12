@@ -1,34 +1,42 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
+from django.views.generic import ListView, DetailView
 from .models import Post, Category, Tag
 import markdown
 
-def index(request):
-    posts = Post.objects.all().order_by('-time')
-    categories = Category.objects.all()
-    latest = Post.objects.all()[:5]
-    dates = Post.objects.dates('time', 'month', 'DESC')
-    return render(request, 'blog/index.html', context = {'posts': posts, 'categories': categories, 'latest': latest, 'dates': dates})
+class IndexView(ListView):
+    model = Post
+    template_name = 'blog/index.html'
+    context_object_name = 'posts'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        context['latest'] = Post.objects.order_by('-time')[:5]
+        context['dates'] = Post.objects.dates('time', 'month', 'DESC')
+        return context
 
-def detail(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
-    post.content = markdown.markdown(post.content, extensions = [
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'blog/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        post = get_object_or_404(Post, pk=self.kwargs['pk'])
+        post.content = markdown.markdown(post.content, extensions = [
                                             'markdown.extensions.extra',
                                             'markdown.extensions.codehilite',
                                             'markdown.extensions.toc'
                                     ])
-    return render(request, 'blog/detail.html', context={'post': post})
+        context['post'] = post
+        return context
 
-def category(request, category_id):
-    posts = Post.objects.filter(category_id = category_id)
-    categories = Category.objects.all()
-    latest = Post.objects.all()[:5]
-    dates = Post.objects.dates('time', 'month', 'DESC')
-    return render(request, 'blog/index.html', context = {'posts': posts, 'categories': categories, 'latest': latest, 'dates': dates})
 
-def archive(request, year, month):
-    posts = Post.objects.filter(time__year = year, time__month = month)
-    categories = Category.objects.all()
-    latest = Post.objects.all()[:5]
-    dates = Post.objects.dates('time', 'month', 'DESC')
-    return render(request, 'blog/index.html', context = {'posts': posts, 'categories': categories, 'latest': latest, 'dates': dates})
+class CategoryView(IndexView):
+    def get_queryset(self, **kwargs):
+        posts = Post.objects.filter(category_id = self.kwargs['category_id'])
+        return posts
+
+class ArchiveView(IndexView):
+    def get_queryset(self, **kwargs):
+        posts = Post.objects.filter(time__year = self.kwargs['year'], time__month = self.kwargs['month'])
+        return posts
