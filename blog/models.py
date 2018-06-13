@@ -18,6 +18,8 @@ class Post(models.Model):
     excerpt = models.CharField(max_length=200, default='')
     content = models.TextField()
 
+    count = models.PositiveIntegerField(default=0)
+
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag)
 

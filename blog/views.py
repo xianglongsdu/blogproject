@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
 from .models import Post, Category, Tag
+from comment.forms import CommentForm
+from comment.models import Comment
 import markdown
 
 class IndexView(ListView):
@@ -21,6 +23,9 @@ class PostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['form'] = CommentForm()
+        comments = Comment.objects.order_by('-time')
+        context['comments'] = comments
         post = get_object_or_404(Post, pk=self.kwargs['pk'])
         post.content = markdown.markdown(post.content, extensions = [
                                             'markdown.extensions.extra',
@@ -29,6 +34,12 @@ class PostDetailView(DetailView):
                                     ])
         context['post'] = post
         return context
+
+    def get_object(self):
+        object = super().get_object()
+        object.count += 1
+        object.save()
+        return object
 
 
 class CategoryView(IndexView):
