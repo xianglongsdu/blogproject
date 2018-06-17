@@ -27,11 +27,14 @@ class PostDetailView(DetailView):
         comments = Comment.objects.filter(post__pk = self.kwargs['pk']).order_by('-time')
         context['comments'] = comments
         post = get_object_or_404(Post, pk=self.kwargs['pk'])
-        post.content = markdown.markdown(post.content, extensions = [
-                                            'markdown.extensions.extra',
-                                            'markdown.extensions.codehilite',
-                                            'markdown.extensions.toc'
-                                    ])
+        md = markdown.Markdown(extensions = [
+            'markdown.extensions.extra',
+            'markdown.extensions.codehilite',
+            'markdown.extensions.toc',
+        ])
+        post.content = md.convert(post.content)
+        post.toc = md.toc
+        
         context['post'] = post
         return context
 
